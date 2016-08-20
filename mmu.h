@@ -41,8 +41,10 @@ inline uint8_t MMU::read(uint16_t addr) const
 inline void MMU::write(uint16_t addr, uint8_t value)
 {
 	// write to I/O ports
-	if ((addr >= 0xFF00) && (addr < 0xFF4C)) 
-		memory[addr] = value;
+	// if ((addr >= 0xFF00) && (addr < 0xFF4C)) 
+	//	memory[addr] = value;
+
+	memory[addr] = value;
 }
 
 

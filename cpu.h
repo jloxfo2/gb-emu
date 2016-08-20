@@ -59,10 +59,11 @@ private:
 	void AND(const uint8_t val);
 	void OR(const uint8_t val);
 	void CP(const uint8_t val);
-	void INC_8BIT(uint8_t &val);
-	void DEC_8BIT(uint8_t &val);
+	uint8_t INC_8BIT(uint8_t val);
+	uint8_t DEC_8BIT(uint8_t val);
 
 };
+
 
 
 // Jump to address designated by val.
@@ -85,6 +86,7 @@ inline void CPU::ADD_8BIT(const uint8_t val)
 	AF.low &= ~(N_FLAG);
 
 	AF.high += val;
+	clock_cycles += 4;
 }
 
 
@@ -101,6 +103,7 @@ inline void CPU::ADC_8BIT(const uint8_t val)
 	AF.low &= ~(N_FLAG);
 
 	AF.high = AF.high + val + ((AF.low & C_FLAG) >> 4);
+	clock_cycles += 4;
 }
 
 
@@ -117,6 +120,7 @@ inline void CPU::SUB(const uint8_t val)
 	AF.low |= N_FLAG;
 
 	AF.high -= val;
+	clock_cycles += 4;
 }
 
 
@@ -133,6 +137,7 @@ inline void CPU::SBC(const uint8_t val)
 	AF.low |= N_FLAG;
 
 	AF.high = AF.high - val - ((AF.low & C_FLAG) >> 4);
+	clock_cycles += 4;
 }
 
 
@@ -145,6 +150,7 @@ inline void CPU::XOR(const uint8_t val)
 		AF.low |= Z_FLAG;
 
 	AF.high ^= val;
+	clock_cycles += 4;
 }
 
 
@@ -158,6 +164,7 @@ inline void CPU::AND(const uint8_t val)
 		AF.low |= Z_FLAG;
 
 	AF.high &= val;
+	clock_cycles += 4;
 }
 
 
@@ -170,6 +177,7 @@ inline void CPU::OR(const uint8_t val)
 		AF.low |= Z_FLAG;
 
 	AF.high |= val;
+	clock_cycles += 4;
 }
 
 
@@ -184,11 +192,13 @@ inline void CPU::CP(const uint8_t val)
 		AF.low |= H_FLAG;
 	if (AF.high > val)  // Set if no borrow
 		AF.low |= C_FLAG;
+
+	clock_cycles += 4;
 }
 
 
 // Increment val by 1.
-inline void CPU::INC_8BIT(uint8_t &val)
+inline uint8_t CPU::INC_8BIT(uint8_t val)
 {
 	// set flags
 	AF.low &= ~(N_FLAG);
@@ -197,12 +207,15 @@ inline void CPU::INC_8BIT(uint8_t &val)
 	if (((val & 0xF) + 1) > MAX_INT_4BIT)
 		AF.low |= H_FLAG;
 
-	val += 1;
+	val++;
+	clock_cycles += 4;
+
+	return val;
 }
 
 
 // Decrement val by 1.
-inline void CPU::DEC_8BIT(uint8_t &val)
+inline uint8_t CPU::DEC_8BIT(uint8_t val)
 {
 	// set flags
 	AF.low |= N_FLAG;
@@ -211,7 +224,10 @@ inline void CPU::DEC_8BIT(uint8_t &val)
 	if ((val & 0xF) > 1)  // Set if no borrow
 		AF.low |= H_FLAG;
 
-	val -= 1;
+	val--;
+	clock_cycles += 4;
+
+	return val;
 }
 
 
