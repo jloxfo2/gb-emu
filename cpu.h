@@ -62,6 +62,9 @@ private:
 	uint8_t INC_8BIT(uint8_t val);
 	uint8_t DEC_8BIT(uint8_t val);
 
+	// 8-Bit Loads
+	void LD_reg_val(const char reg, const uint8_t val);
+	void LD_addr_val(const uint16_t addr, const uint8_t val);
 };
 
 
@@ -228,6 +231,14 @@ inline uint8_t CPU::DEC_8BIT(uint8_t val)
 	clock_cycles += 4;
 
 	return val;
+}
+
+
+// Load val into the specified 16-bit address
+inline void CPU::LD_addr_val(const uint16_t addr, const uint8_t val)
+{
+	gb_mmu.write(addr, val);
+	clock_cycles += 8;
 }
 
 

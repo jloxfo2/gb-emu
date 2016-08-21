@@ -34,17 +34,17 @@ void CPU::initialize()
 // Function: Execute the opcode and update the CPU state
 int CPU::execute_next_opcode()
 {
-	uint8_t opcode = gb_mmu.read(PC++);
+	uint8_t opcode = gb_mmu.read(PC);
 
 	uint8_t tmp_byte;
-	// uint16_t tmp_word;
+	uint16_t tmp_word;
 
 	switch(opcode) {
 	case 0x00:  // NOP
 		clock_cycles += 4;
 		break;
 	case 0xC3:  // JP nn
-		JUMP((gb_mmu.read(PC + 1) << 8) | (gb_mmu.read(PC)));
+		JUMP((gb_mmu.read(PC + 2) << 8) | (gb_mmu.read(PC + 1)));
 		clock_cycles += 16;
 		break;
 	case 0x87:  // ADD A, A
@@ -344,11 +344,321 @@ int CPU::execute_next_opcode()
 		gb_mmu.write(HL.highlow, tmp_byte);
 		clock_cycles += 8;
 		break;
+	case 0x06:  // LD B, n
+		tmp_byte = gb_mmu.read(PC + 1);
+		LD_reg_val('B', tmp_byte);
+		clock_cycles += 4;
+		break;
+	case 0x0E:  // LD C, n
+		tmp_byte = gb_mmu.read(PC + 1);
+		LD_reg_val('C', tmp_byte);
+		clock_cycles += 4;
+		break;
+	case 0x16:  // LD D, n
+		tmp_byte = gb_mmu.read(PC + 1);
+		LD_reg_val('D', tmp_byte);
+		clock_cycles += 4;
+		break;
+	case 0x1E:  // LD E, n
+		tmp_byte = gb_mmu.read(PC + 1);
+		LD_reg_val('E', tmp_byte);
+		clock_cycles += 4;
+		break;
+	case 0x26:  // LD H, n
+		tmp_byte = gb_mmu.read(PC + 1);
+		LD_reg_val('H', tmp_byte);
+		clock_cycles += 4;
+		break;
+	case 0x2E:  // LD L, n
+		tmp_byte = gb_mmu.read(PC + 1);
+		LD_reg_val('L', tmp_byte);
+		clock_cycles += 4;
+		break;
+	case 0x7F:  // LD A, A
+		LD_reg_val('A', AF.high);
+		break;
+	case 0x78:  // LD A, B
+		LD_reg_val('A', BC.high);
+		break;
+	case 0x79:  // LD A, C
+		LD_reg_val('A', BC.low);
+		break;
+	case 0x7A:  // LD A, D
+		LD_reg_val('A', DE.high);
+		break;
+	case 0x7B:  // LD A, E
+		LD_reg_val('A', DE.low);
+		break;
+	case 0x7C:  // LD A, H
+		LD_reg_val('A', HL.high);
+		break;
+	case 0x7D:  // LD A, L
+		LD_reg_val('A', HL.low);
+		break;
+	case 0x7E:  // LD A, (HL)
+		tmp_byte = gb_mmu.read(HL.highlow);
+		LD_reg_val('A', tmp_byte);
+		clock_cycles += 4;
+		break;
+	case 0x40:  // LD B, B
+		LD_reg_val('B', BC.high);
+		break;
+	case 0x41:  // LD B, C
+		LD_reg_val('B', BC.low);
+		break;
+	case 0x42:  // LD B, D
+		LD_reg_val('B', DE.high);
+		break;
+	case 0x43:  // LD B, E
+		LD_reg_val('B', DE.low);
+		break;
+	case 0x44:  // LD B, H
+		LD_reg_val('B', HL.high);
+		break;
+	case 0x45:  // LD B, L
+		LD_reg_val('B', HL.low);
+		break;
+	case 0x46:  // LD B, (HL)
+		tmp_byte = gb_mmu.read(HL.highlow);
+		LD_reg_val('B', tmp_byte);
+		clock_cycles += 4;
+		break;
+	case 0x48:  // LD C, B
+		LD_reg_val('C', BC.high);
+		break;
+	case 0x49:  // LD C, C
+		LD_reg_val('C', BC.low);
+		break;
+	case 0x4A:  // LD C, D
+		LD_reg_val('C', DE.high);
+		break;
+	case 0x4B:  // LD C, E
+		LD_reg_val('C', DE.low);
+		break;
+	case 0x4C:  // LD C, H
+		LD_reg_val('C', HL.high);
+		break;
+	case 0x4D:  // LD C, L
+		LD_reg_val('C', HL.low);
+		break;
+	case 0x4E:  // LD C, (HL)
+		tmp_byte = gb_mmu.read(HL.highlow);
+		LD_reg_val('C', tmp_byte);
+		clock_cycles += 4;
+		break;
+	case 0x50:  // LD D, B
+		LD_reg_val('D', BC.high);
+		break;
+	case 0x51:  // LD D, C
+		LD_reg_val('D', BC.low);
+		break;
+	case 0x52:  // LD D, D
+		LD_reg_val('D', DE.high);
+		break;
+	case 0x53:  // LD D, E
+		LD_reg_val('D', DE.low);
+		break;
+	case 0x54:  // LD D, H
+		LD_reg_val('D', HL.high);
+		break;
+	case 0x55:  // LD D, L
+		LD_reg_val('D', HL.low);
+		break;
+	case 0x56:  // LD D, (HL)
+		tmp_byte = gb_mmu.read(HL.highlow);
+		LD_reg_val('D', tmp_byte);
+		clock_cycles += 4;
+		break;
+	case 0x58:  // LD E, B
+		LD_reg_val('E', BC.high);
+		break;
+	case 0x59:  // LD E, C
+		LD_reg_val('E', BC.low);
+		break;
+	case 0x5A:  // LD E, D
+		LD_reg_val('E', DE.high);
+		break;
+	case 0x5B:  // LD E, E
+		LD_reg_val('E', DE.low);
+		break;
+	case 0x5C:  // LD E, H
+		LD_reg_val('E', HL.high);
+		break;
+	case 0x5D:  // LD E, L
+		LD_reg_val('E', HL.low);
+		break;
+	case 0x5E:  // LD E, (HL)
+		tmp_byte = gb_mmu.read(HL.highlow);
+		LD_reg_val('E', tmp_byte);
+		clock_cycles += 4;
+		break;
+	case 0x60:  // LD H, B
+		LD_reg_val('H', BC.high);
+		break;
+	case 0x61:  // LD H, C
+		LD_reg_val('H', BC.low);
+		break;
+	case 0x62:  // LD H, D
+		LD_reg_val('H', DE.high);
+		break;
+	case 0x63:  // LD H, E
+		LD_reg_val('H', DE.low);
+		break;
+	case 0x64:  // LD H, H
+		LD_reg_val('H', HL.high);
+		break;
+	case 0x65:  // LD H, L
+		LD_reg_val('H', HL.low);
+		break;
+	case 0x66:  // LD H, (HL)
+		tmp_byte = gb_mmu.read(HL.highlow);
+		LD_reg_val('H', tmp_byte);
+		clock_cycles += 4;
+		break;
+	case 0x68:  // LD L, B
+		LD_reg_val('L', BC.high);
+		break;
+	case 0x69:  // LD L, C
+		LD_reg_val('L', BC.low);
+		break;
+	case 0x6A:  // LD L, D
+		LD_reg_val('L', DE.high);
+		break;
+	case 0x6B:  // LD L, E
+		LD_reg_val('L', DE.low);
+		break;
+	case 0x6C:  // LD L, H
+		LD_reg_val('L', HL.high);
+		break;
+	case 0x6D:  // LD L, L
+		LD_reg_val('L', HL.low);
+		break;
+	case 0x6E:  // LD L, (HL)
+		tmp_byte = gb_mmu.read(HL.highlow);
+		LD_reg_val('L', tmp_byte);
+		clock_cycles += 4;
+		break;
+	case 0x70:  // LD (HL), B
+		LD_addr_val(HL.highlow, BC.high);
+		break;
+	case 0x71:  // LD (HL), C
+		LD_addr_val(HL.highlow, BC.low);
+		break;
+	case 0x72:  // LD (HL), D
+		LD_addr_val(HL.highlow, DE.high);
+		break;
+	case 0x73:  // LD (HL), E
+		LD_addr_val(HL.highlow, DE.low);
+		break;
+	case 0x74:  // LD (HL), H
+		LD_addr_val(HL.highlow, HL.high);
+		break;
+	case 0x75:  // LD (HL), L
+		LD_addr_val(HL.highlow, HL.low);
+		break;
+	case 0x36:  // LD (HL), n
+		tmp_byte = gb_mmu.read(PC + 1);
+		LD_addr_val(HL.highlow, tmp_byte);
+		clock_cycles += 4;
+		break;
+	case 0x0A:  // LD A, (BC)
+		tmp_byte = gb_mmu.read(BC.highlow);
+		LD_reg_val('A', tmp_byte);
+		clock_cycles += 4;
+		break;
+	case 0x1A:  // LD A, (DE)
+		tmp_byte = gb_mmu.read(DE.highlow);
+		LD_reg_val('A', tmp_byte);
+		clock_cycles += 4;
+		break;
+	case 0xFA:  // LD A, nn
+		tmp_word = (gb_mmu.read(PC + 2) << 8) | gb_mmu.read(PC + 1);
+		tmp_byte = gb_mmu.read(tmp_word);
+		LD_reg_val('A', tmp_byte);
+		clock_cycles += 12;
+		break;
+	case 0x3E:  // LD A, #
+		tmp_byte = gb_mmu.read(PC + 1);
+		LD_reg_val('A', tmp_byte);
+		clock_cycles += 4;
+		break;
+	case 0x47:  // LD B, A
+		LD_reg_val('B', AF.high);
+		break;
+	case 0x4F:  // LD C, A
+		LD_reg_val('C', AF.high);
+		break;
+	case 0x57:  // LD D, A
+		LD_reg_val('D', AF.high);
+		break;
+	case 0x5F:  // LD E, A
+		LD_reg_val('E', AF.high);
+		break;
+	case 0x67:  // LD H, A
+		LD_reg_val('H', AF.high);
+		break;
+	case 0x6F:  // LD L, A
+		LD_reg_val('L', AF.high);
+		break;
+	case 0x02:  // LD (BC), A
+		LD_addr_val(BC.highlow, AF.high);
+		break;
+	case 0x12:  // LD (DE), A
+		LD_addr_val(DE.highlow, AF.high);
+		break;
+	case 0x77:  // LD (HL), A
+		LD_addr_val(HL.highlow, AF.high);
+		break;
+	case 0xEA:  // LD (nn), A
+		tmp_word = (gb_mmu.read(PC + 2) << 8) | gb_mmu.read(PC + 1);
+		LD_addr_val(tmp_word, AF.high);
+		clock_cycles += 8;
+		break;
+	case 0xF2:  // LD A, (C)
+		tmp_byte = gb_mmu.read(0xFF00 + BC.low);
+		LD_reg_val('A', tmp_byte);
+		clock_cycles += 4;
+		break;
+	case 0xE2:  // LD (C), A
+		tmp_word = 0xFF00 + BC.low;
+		LD_addr_val(tmp_word, AF.high);
+		break;
+	case 0x3A:  // LD A, (HLD)
+		tmp_byte = gb_mmu.read(HL.highlow);
+		LD_reg_val('A', tmp_byte);
+		HL.highlow--;
+		clock_cycles += 4;
+		break;
+	case 0x32:  // LD (HLD), A
+		LD_addr_val(HL.highlow, AF.high);
+		HL.highlow--;
+		break;
+	case 0x2A:  // LD A, (HLI)
+		tmp_byte = gb_mmu.read(HL.highlow);
+		LD_reg_val('A', tmp_byte);
+		HL.highlow++;
+		clock_cycles += 4;
+		break;
+	case 0x22:  // LD (HLI), A
+		LD_addr_val(HL.highlow, AF.high);
+		HL.highlow++;
+		break;
+	case 0xE0:  // LDH (n), A
+		tmp_byte = gb_mmu.read(PC + 1);
+		LD_addr_val(0xFF00 + tmp_byte, AF.high);
+		clock_cycles += 4;
+		break;
+	case 0xF0:  // LDH A, (n)
+		tmp_byte = gb_mmu.read(PC + 1);
+		LD_reg_val('A', 0xFF00 + tmp_byte);
+		clock_cycles += 8;
+		break;
 	default:
 		printf("Unknown opcode: 0x%02X\n", opcode);
 		cpu_dump();
 	}
 
+	PC++;
 	return 0;
 }
 
@@ -365,4 +675,30 @@ void CPU::cpu_dump()
 	printf("DE: 0x%04X\n", DE.highlow);
 	printf("HL: 0x%04X\n", HL.highlow);
 	getchar();
+}
+
+
+// ****** GameBoy Opcode Instructions ******
+
+// Load val into the specified register
+void CPU::LD_reg_val(const char reg, const uint8_t val)
+{
+	switch(reg) {
+	case 'A':
+		AF.high = val;
+	case 'B':
+		BC.high = val;
+	case 'C':
+		BC.low = val;
+	case 'D':
+		DE.high = val;
+	case 'E':
+		DE.low = val;
+	case 'H':
+		HL.high = val;
+	case 'L':
+		HL.low = val;
+	}
+
+	clock_cycles += 4;
 }
