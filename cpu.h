@@ -4,6 +4,7 @@
 #include "mmu.h"
 #include <stdint.h>
 #include <iostream>
+#include <string>
 
 #define MAX_INT_4BIT  0x000F
 #define MAX_INT_8BIT  0x00FF
@@ -63,8 +64,19 @@ private:
 	uint8_t DEC_8BIT(uint8_t val);
 
 	// 8-Bit Loads
-	void LD_reg_val(const char reg, const uint8_t val);
-	void LD_addr_val(const uint16_t addr, const uint8_t val);
+	void LD_reg_val_8BIT(const char reg, const uint8_t val);
+	void LD_addr_val_8BIT(const uint16_t addr, const uint8_t val);
+
+	// 16-Bit Loads
+	void LD_reg_val_16BIT(const std::string reg, const uint16_t val);
+	void LD_addr_val_16BIT(const uint16_t addr, const uint16_t val);
+	void LDHL_SP_n(const uint8_t val);
+
+	// 16-Bit Stack Operations
+	void PUSH_nn(const std::string reg);
+	void POP_nn(const std::string reg);
+	
+	// ********** End of Instructions **********
 };
 
 
@@ -234,12 +246,35 @@ inline uint8_t CPU::DEC_8BIT(uint8_t val)
 }
 
 
-// Load val into the specified 16-bit address
-inline void CPU::LD_addr_val(const uint16_t addr, const uint8_t val)
+// Load 8-bit val into the specified 16-bit address
+inline void CPU::LD_addr_val_8BIT(const uint16_t addr, const uint8_t val)
 {
-	gb_mmu.write(addr, val);
+	gb_mmu.write_byte(addr, val);
 	clock_cycles += 8;
 }
 
+
+// Load 16-bit val into the specified 16-bit address
+inline void CPU::LD_addr_val_16BIT(const uint16_t addr, const uint16_t val)
+{
+	gb_mmu.write_word(addr, val);
+	clock_cycles += 12;
+}
+
+
+// Load (SP + n) effective address into HL
+inline void CPU::LDHL_SP_n(const uint8_t val)
+{
+	// set flags
+	AF.low &= ~(Z_FLAG);
+	AF.low &= ~(N_FLAG);
+	if ((HL.low & 0x0F) > (MAX_INT_4BIT - (val & 0x0F)))
+		AF.low |= H_FLAG;
+	if (HL.low > (MAX_INT_8BIT - val))
+		AF.low |= C_FLAG;
+
+	HL.highlow = SP + val;
+	clock_cycles += 12;
+}
 
 #endif  // CPU_H_

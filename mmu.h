@@ -13,8 +13,9 @@ public:
 	void initialize();
 	int load_ROM(const char* file_name);
 	
-	uint8_t read(uint16_t PC) const;
-	void write(uint16_t addr, uint8_t value);
+	uint8_t read(const uint16_t addr) const;
+	void write_byte(const uint16_t addr, const uint8_t value);
+	void write_word(const uint16_t addr, const uint16_t value);
 private:
 	static const int RAM_size = 0x10000;
 	static const int cartridge_size = 0x200000;
@@ -29,7 +30,7 @@ private:
 
 // Input: addr - 16-bit memory address
 // Return: 8-bit value stored at the provided address
-inline uint8_t MMU::read(uint16_t addr) const
+inline uint8_t MMU::read(const uint16_t addr) const
 {
 	return memory[addr];
 }
@@ -38,7 +39,7 @@ inline uint8_t MMU::read(uint16_t addr) const
 // Input: addr - 16-bit memory address
 //        value - 8-bit value to be written at provided address
 // Return: None
-inline void MMU::write(uint16_t addr, uint8_t value)
+inline void MMU::write_byte(const uint16_t addr, const uint8_t value)
 {
 	// write to I/O ports
 	// if ((addr >= 0xFF00) && (addr < 0xFF4C)) 
@@ -47,5 +48,15 @@ inline void MMU::write(uint16_t addr, uint8_t value)
 	memory[addr] = value;
 }
 
+
+
+// Input: addr - 16-bit memory address
+//        value - 16-bit value to be written at provided address
+// Return: None
+inline void MMU::write_word(const uint16_t addr, const uint16_t value)
+{
+	memory[addr] = value & 0x0F;
+	memory[addr + 1] = (value & 0xF0) >> 8;
+}
 
 #endif  // MMU_H_
